@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuaderno de palabras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E6ECF1;--paper:#FBFCF7;--line:#C5DBEF;--margin:#E2504C;--ink:#22252B;--soft:#5B6270;
+  --pencil:#F2C230;--ok:#2F8A50;--okbg:#E3F3E8;--bad:#B4472F;--badbg:#FBE7E1;--tile:#FFFFFF;--shadow:#22252B;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111A15;--paper:#1C2A22;--line:rgba(255,255,255,.07);--margin:#B9534C;--ink:#ECEFE8;--soft:#A7B2A9;
+  --ok:#7FD39A;--okbg:#1F3B2A;--bad:#F09A84;--badbg:#3D2520;--tile:#25362C;--shadow:#070C09;}}
+:root[data-theme="dark"]{
+  --bg:#111A15;--paper:#1C2A22;--line:rgba(255,255,255,.07);--margin:#B9534C;--ink:#ECEFE8;--soft:#A7B2A9;
+  --ok:#7FD39A;--okbg:#1F3B2A;--bad:#F09A84;--badbg:#3D2520;--tile:#25362C;--shadow:#070C09;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Andika,"Comic Sans MS","Trebuchet MS",sans-serif;font-size:20px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:20px 14px 32px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+h1{margin:0;font-size:clamp(1.7rem,6vw,2.4rem);line-height:1.1;font-weight:700}
+h1::after{content:"";display:block;height:10px;width:70%;margin-top:6px;background:var(--pencil);border-radius:2px 8px 8px 2px}
+#stars{font-size:1.2rem;font-weight:700;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;padding:0 2px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font:inherit;font-size:1rem;color:var(--soft);background:transparent;border:2px solid transparent;border-bottom:none;border-radius:12px 12px 0 0;padding:8px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--paper);color:var(--ink);border-color:var(--ink);font-weight:700;position:relative;top:2px}
+.page{background-color:var(--paper);border:2px solid var(--ink);border-radius:0 14px 14px 14px;min-height:460px;
+  background-image:linear-gradient(90deg,transparent 46px,var(--margin) 46px,var(--margin) 48px,transparent 48px),
+  repeating-linear-gradient(to bottom,transparent 0 39px,var(--line) 39px 40px);
+  padding:22px 20px 30px 66px}
+@media (max-width:520px){.page{padding-left:46px;background-image:linear-gradient(90deg,transparent 28px,var(--margin) 28px,var(--margin) 30px,transparent 30px),repeating-linear-gradient(to bottom,transparent 0 39px,var(--line) 39px 40px)}}
+.pic{font-size:76px;line-height:1.1;margin:4px 0 8px}
+.ins{margin:0 0 12px;color:var(--soft)}
+h2{margin:0 0 6px;font-size:1.5rem}
+.reading{font-size:1.25rem;line-height:40px;margin:0 0 14px;max-width:62ch}
+.tiles{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}
+.tile{font:inherit;font-size:1.6rem;color:var(--ink);background:var(--tile);border:2px solid var(--ink);border-radius:10px;padding:4px 18px;box-shadow:0 4px 0 var(--shadow);cursor:pointer;min-width:56px;transition:transform .08s}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.tile:disabled{opacity:.3;cursor:default;box-shadow:none;transform:translateY(3px)}
+.tile.word{font-size:1.25rem;padding:4px 12px}
+.tile.right{background:var(--okbg);border-color:var(--ok)}
+.tile.wrong{background:var(--badbg);border-color:var(--bad)}
+.answer{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;align-items:flex-end;margin:14px 0 4px;padding-bottom:6px;border-bottom:3px dashed var(--soft)}
+.slot{min-width:64px;height:50px;display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;border-bottom:3px solid var(--ink)}
+.slot.filled{color:var(--ok)}
+.hint{color:var(--soft);font-size:1rem}
+.btn{font:inherit;font-size:1.1rem;font-weight:700;color:#22252B;background:var(--pencil);border:2px solid var(--ink);border-radius:10px;padding:8px 18px;box-shadow:0 4px 0 var(--shadow);cursor:pointer;margin:6px 8px 6px 0}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:var(--tile);color:var(--ink)}
+.btn[hidden]{display:none}
+.fb{min-height:40px;margin:8px 0;font-size:1.15rem;font-weight:700}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.q{margin:18px 0 6px}
+.q p{margin:0 0 6px;font-weight:700}
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opts .tile{font-size:1.1rem;padding:6px 14px;text-align:left}
+input.write{font:inherit;font-size:2rem;color:var(--ink);background:transparent;border:none;border-bottom:3px solid var(--ink);width:min(100%,360px);padding:2px 4px;margin:10px 0}
+input.write:focus{outline:none;border-bottom-color:var(--pencil)}
+.note{font-size:.95rem;color:var(--soft)}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;font-size:.9rem;color:var(--soft)}
+footer button{font:inherit;color:var(--soft);background:none;border:none;text-decoration:underline;cursor:pointer}
+:focus-visible{outline:3px solid var(--pencil);outline-offset:3px}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.tile,.btn{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>Cuaderno de palabras</h1><div id="stars" aria-live="polite">⭐ 0</div></header>
+  <nav role="tablist" id="tabs" aria-label="Actividades"></nav>
+  <main class="page" id="stage" role="tabpanel"></main>
+  <footer><span>Las estrellas se guardan solo en este dispositivo.</span><button type="button" id="reset">Borrar estrellas</button></footer>
+</div>
+<script>
+const WORDS=[
+ {w:'mariposa',s:['ma','ri','po','sa'],e:'🦋'},{w:'tortuga',s:['tor','tu','ga'],e:'🐢'},
+ {w:'pelota',s:['pe','lo','ta'],e:'⚽'},{w:'banano',s:['ba','na','no'],e:'🍌'},
+ {w:'bicicleta',s:['bi','ci','cle','ta'],e:'🚲'},{w:'luna',s:['lu','na'],e:'🌙'},
+ {w:'vaca',s:['va','ca'],e:'🐄'},{w:'pescado',s:['pes','ca','do'],e:'🐟'},
+ {w:'sapo',s:['sa','po'],e:'🐸'},{w:'conejo',s:['co','ne','jo'],e:'🐰'},
+ {w:'zapato',s:['za','pa','to'],e:'👞'},{w:'libro',s:['li','bro'],e:'📖'},
+ {w:'lápiz',s:['lá','piz'],e:'✏️'},{w:'gato',s:['ga','to'],e:'🐱'},
+ {w:'perro',s:['pe','rro'],e:'🐶'},{w:'casa',s:['ca','sa'],e:'🏠'},
+ {w:'tomate',s:['to','ma','te'],e:'🍅'},{w:'guitarra',s:['gui','ta','rra'],e:'🎸'}
+];
+const DISTRACT=['me','fi','go','ne','que','bra','sol','mu','de','ri'];
+const SENT=[
+ 'El sapo salta en la laguna.','Mi abuela prepara arepas en la mañana.',
+ 'La tortuga camina muy despacio.','Los niños juegan fútbol en el parque.',
+ 'Mi mamá compró mangos en la plaza.','El perro duerme debajo de la mesa.',
+ 'La mariposa vuela sobre las flores.','Hoy llevé mi libro nuevo a la escuela.'
+];
+const READ=[
+ {t:'Lola y la lluvia',x:'Lola es una tortuga que vive cerca de una quebrada. Un martes empezó a llover muy fuerte. Lola escondió la cabeza dentro de su caparazón y esperó tranquila. Cuando salió el sol, vio un arcoíris sobre el agua. Lola sonrió y caminó despacio hasta unas hojas verdes para desayunar.',
+  q:[['¿Dónde vive Lola?',['Cerca de una quebrada','En una casa','En el mar'],0],
+     ['¿Qué hizo Lola cuando empezó a llover?',['Salió a nadar','Escondió la cabeza','Se fue a dormir'],1],
+     ['¿Por qué Lola se escondió en su caparazón?',['Porque tenía hambre','Porque vio el arcoíris','Para protegerse de la lluvia'],2]]},
+ {t:'El mercado del sábado',x:'Todos los sábados, Tomás acompaña a su abuelo a la plaza de mercado. Allí compran plátanos, lulos y queso. El abuelo saluda a doña Rosa, que vende las frutas más frescas. Tomás ayuda a cargar la bolsa más liviana. Al llegar a casa, preparan juntos un jugo de lulo bien frío.',
+  q:[['¿Qué día van al mercado?',['El lunes','El sábado','El domingo'],1],
+     ['¿Qué preparan al llegar a casa?',['Jugo de lulo','Arepas','Sopa'],0],
+     ['¿Por qué Tomás carga la bolsa más liviana?',['Porque está vacía','Porque no quiere ayudar','Porque es la que él puede llevar'],2]]},
+ {t:'Un nuevo amigo',x:'Hoy llegó un niño nuevo al salón. Se llama Samuel y viene de la costa. Al principio estaba callado y miraba por la ventana. En el descanso, Valentina lo invitó a jugar fútbol. Samuel metió un gol y todos aplaudieron. Al final del día, Samuel ya tenía muchos amigos.',
+  q:[['¿De dónde viene Samuel?',['De la costa','De otro país','Del campo'],0],
+     ['¿Qué hizo Valentina en el descanso?',['Le prestó un lápiz','Lo invitó a jugar','Lo llevó a la biblioteca'],1],
+     ['¿Cómo se sentía Samuel al principio?',['Enojado','Muy feliz','Tímido'],2]]}
+];
+const DICT=['casa','perro','guitarra','queso','llave','zapato','cielo','girasol','lápiz','mariposa','árbol','hormiga','gente','pollito'];
+
+const $=s=>document.querySelector(s);
+function h(tag,props={},...kids){const n=document.createElement(tag);
+ for(const[k,v]of Object.entries(props)){if(k==='class')n.className=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)n.setAttribute(k,v===true?'':v);}
+ for(const k of kids.flat()){if(k==null||k===false)continue;n.append(k.nodeType?k:document.createTextNode(k));}return n;}
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const order={},pos={};
+function next(m,arr){if(!order[m]||pos[m]>=order[m].length){order[m]=shuffle(arr.map((_,i)=>i));pos[m]=0}return arr[order[m][pos[m]++]]}
+function wrong(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
+function fb(el,ok,msg){el.className='fb '+(ok?'ok':'bad');el.textContent=msg}
+
+/* Voz */
+const canSpeak='speechSynthesis' in window;let voice=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang==='es-CO')||vs.find(v=>/es-(US|MX|419)/.test(v.lang))||vs.find(v=>v.lang.startsWith('es'))||null}catch(e){}}
+if(canSpeak){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(t,rate=.85){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'es-ES';if(voice)u.voice=voice;u.rate=rate;speechSynthesis.speak(u)}
+const listen=(t,l='Escuchar')=>canSpeak?h('button',{class:'btn ghost',type:'button',onclick:()=>speak(t)},'🔊 '+l):null;
+
+/* Estrellas */
+const KEY='cuaderno-palabras-v1';let stars={};
+try{stars=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){stars={}}
+function paintStars(){$('#stars').textContent='⭐ '+Object.values(stars).reduce((a,b)=>a+b,0)}
+function addStar(m){stars[m]=(stars[m]||0)+1;try{localStorage.setItem(KEY,JSON.stringify(stars))}catch(e){}paintStars()}
+$('#reset').onclick=()=>{if(confirm('¿Borrar todas las estrellas de este dispositivo?')){stars={};try{localStorage.removeItem(KEY)}catch(e){}paintStars()}};
+
+function nextBtn(id,label){return h('button',{class:'btn',type:'button',hidden:true,onclick:()=>show(id)},label)}
+
+/* 1. Arma la palabra */
+function rSil(st){
+ const it=next('silabas',WORDS),built=[];
+ const extra=shuffle(DISTRACT.filter(d=>!it.s.includes(d)))[0];
+ const ans=h('div',{class:'answer','aria-live':'polite'}),f=h('p',{class:'fb','aria-live':'polite'}),nb=nextBtn('silabas','Siguiente palabra');
+ const paint=()=>ans.replaceChildren(...it.s.map((_,i)=>h('span',{class:'slot'+(built[i]?' filled':'')},built[i]||'')));paint();
+ const tiles=shuffle([...it.s,extra]).map(t=>{const b=h('button',{class:'tile',type:'button',onclick:()=>{
+   if(built.length>=it.s.length)return;
+   if(t===it.s[built.length]){built.push(t);b.disabled=true;paint();
+     if(built.length===it.s.length){fb(f,true,'¡Muy bien! Escribiste «'+it.w+'».');speak(it.w);addStar('silabas');nb.hidden=false;nb.focus()}
+     else{f.textContent='';speak(t,.7)}}
+   else{wrong(b);fb(f,false,'Esa sílaba no va ahí. Escucha la palabra otra vez.')}}},t);return b});
+ st.append(h('div',{class:'pic','aria-hidden':'true'},it.e),h('p',{class:'ins'},'Toca las sílabas en orden. Sobra una.'),listen(it.w),ans,h('div',{class:'tiles'},tiles),f,nb);
+}
+/* 2. ¿Cómo empieza? */
+function rIni(st){
+ const it=next('inicio',WORDS),first=it.s[0];
+ const others=shuffle([...new Set(WORDS.map(w=>w.s[0]).filter(x=>x!==first))]).slice(0,2);
+ const f=h('p',{class:'fb','aria-live':'polite'}),nb=nextBtn('inicio','Siguiente dibujo');let tried=false,done=false;
+ const btns=shuffle([first,...others]).map(o=>{const b=h('button',{class:'tile',type:'button',onclick:()=>{
+   if(done)return;
+   if(o===first){done=true;b.classList.add('right');fb(f,true,'¡Sí! «'+it.w+'» empieza con «'+first+'».');speak(it.w);if(!tried)addStar('inicio');nb.hidden=false;nb.focus()}
+   else{tried=true;b.classList.add('wrong');wrong(b);fb(f,false,'Di la palabra despacio y escucha el primer sonido.')}}},o);return b});
+ st.append(h('div',{class:'pic','aria-hidden':'true'},it.e),h('p',{class:'ins'},'¿Con qué sílaba empieza el nombre de este dibujo?'),listen(it.w),h('div',{class:'tiles'},btns),f,nb);
+}
+/* 3. Ordena la oración */
+function rOra(st){
+ const sent=next('oraciones',SENT),words=sent.split(' ');
+ let pool=words.map((w,i)=>({w,i}));do{pool=shuffle(pool)}while(pool.every((p,k)=>p.i===k));
+ let placed=[],tried=false,done=false;
+ const ansEl=h('div',{class:'answer'}),poolEl=h('div',{class:'tiles'}),f=h('p',{class:'fb','aria-live':'polite'}),nb=nextBtn('oraciones','Otra oración');
+ const check=h('button',{class:'btn',type:'button',disabled:true,onclick:()=>{
+   if(placed.map(p=>p.w).join(' ')===sent){done=true;fb(f,true,'¡Excelente! La oración está bien escrita.');speak(sent);if(!tried)addStar('oraciones');check.hidden=true;nb.hidden=false;nb.focus();
+     [...ansEl.children].forEach(b=>b.classList.add('right'))}
+   else{tried=true;[...ansEl.children].forEach((b,k)=>b.classList.add(placed[k].w===words[k]?'right':'wrong'));
+     fb(f,false,'Las palabras verdes ya están en su sitio. Toca las rojas para moverlas.')}}},'Revisar');
+ function paint(){
+  ansEl.replaceChildren(...placed.map((p,k)=>h('button',{class:'tile word',type:'button',onclick:()=>{if(done)return;placed.splice(k,1);paint()}},p.w)));
+  if(!placed.length)ansEl.append(h('span',{class:'hint'},'Aquí se arma la oración.'));
+  poolEl.replaceChildren(...pool.filter(p=>!placed.includes(p)).map(p=>h('button',{class:'tile word',type:'button',onclick:()=>{if(done)return;placed.push(p);paint()}},p.w)));
+  check.disabled=placed.length!==words.length;f.textContent=''}
+ paint();
+ st.append(h('p',{class:'ins'},'Ordena las palabras. Pista: la oración empieza con mayúscula y termina con punto.'),ansEl,poolEl,check,f,nb);
+}
+/* 4. Leo y comprendo */
+function rLec(st){
+ const r=next('lectura',READ);let answered=0,good=0;const nb=nextBtn('lectura','Otra lectura'),sum=h('p',{class:'fb','aria-live':'polite'});
+ const qs=r.q.map(([q,opts,ok],qi)=>{let tried=false,done=false;const f=h('p',{class:'fb','aria-live':'polite'});
+  const bs=opts.map((o,i)=>{const b=h('button',{class:'tile',type:'button',onclick:()=>{
+    if(done)return;
+    if(i===ok){done=true;b.classList.add('right');fb(f,true,tried?'Ahora sí. Vuelve al texto y busca dónde lo dice.':'¡Correcto!');if(!tried){addStar('lectura');good++}answered++;
+      if(answered===r.q.length){fb(sum,true,'Acertaste '+good+' de '+r.q.length+' al primer intento.');nb.hidden=false}}
+    else{tried=true;b.classList.add('wrong');wrong(b);fb(f,false,'Relee el texto y vuelve a intentar.')}}},o);return b});
+  return h('div',{class:'q'},h('p',{},(qi+1)+'. '+q),h('div',{class:'opts'},bs),f)});
+ st.append(h('h2',{},r.t),h('p',{class:'reading'},r.x),listen(r.t+'. '+r.x,'Escuchar la lectura'),...qs,sum,nb);
+}
+/* 5. Dictado */
+const strip=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function rDic(st){
+ const w=next('dictado',DICT);let done=false;
+ const inp=h('input',{type:'text',class:'write',autocomplete:'off',autocapitalize:'off',autocorrect:'off',spellcheck:'false','aria-label':'Escribe la palabra que escuchaste'});
+ const f=h('p',{class:'fb','aria-live':'polite'}),nb=nextBtn('dictado','Siguiente palabra');
+ const check=h('button',{class:'btn',type:'button',onclick:doCheck},'Revisar');
+ function doCheck(){if(done)return;const v=inp.value.trim().toLowerCase();
+  if(!v){fb(f,false,'Escribe la palabra primero.');inp.focus();return}
+  done=true;check.hidden=true;inp.readOnly=true;
+  if(v===w){fb(f,true,'¡Perfecto! Se escribe «'+w+'».');addStar('dictado')}
+  else if(strip(v)===strip(w))fb(f,false,'Casi: revisa la tilde. Se escribe «'+w+'».');
+  else fb(f,false,'Se escribe «'+w+'». Tú escribiste «'+v+'». Compara letra por letra.');
+  nb.hidden=false;nb.focus()}
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter')doCheck()});
+ const teacher=!canSpeak?h('button',{class:'btn ghost',type:'button',onclick:e=>{e.target.textContent=w}},'Ver palabra (solo docente)'):null;
+ st.append(h('div',{class:'pic','aria-hidden':'true'},'👂'),h('p',{class:'ins'},canSpeak?'Escucha la palabra y escríbela.':'Este navegador no lee en voz alta: el docente dicta la palabra.'),listen(w,'Escuchar palabra'),teacher,h('div',{},inp),check,f,nb);
+ if(canSpeak)setTimeout(()=>speak(w),300);
+}
+
+const MODS=[{id:'silabas',n:'Arma la palabra',r:rSil},{id:'inicio',n:'¿Cómo empieza?',r:rIni},{id:'oraciones',n:'Ordena la oración',r:rOra},{id:'lectura',n:'Leo y comprendo',r:rLec},{id:'dictado',n:'Dictado',r:rDic}];
+const tabs=$('#tabs'),stage=$('#stage');
+MODS.forEach(m=>tabs.append(h('button',{class:'tab',type:'button',role:'tab',id:'t-'+m.id,'aria-selected':'false',onclick:()=>show(m.id)},m.n)));
+function show(id){if(canSpeak)speechSynthesis.cancel();
+ MODS.forEach(m=>$('#t-'+m.id).setAttribute('aria-selected',m.id===id));
+ stage.setAttribute('aria-labelledby','t-'+id);stage.replaceChildren();MODS.find(m=>m.id===id).r(stage)}
+paintStars();show('silabas');
+</script>
+</body>
+</html>
